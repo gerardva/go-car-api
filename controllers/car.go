@@ -20,8 +20,8 @@ func (h CarController) CreateCar(c *gin.Context) {
 		return
 	}
 
-	if resp := handlers.CreateCar(&car); resp.Error != nil {
-		c.AbortWithError(resp.StatusCode, resp.Error)
+	if err := handlers.CreateCar(&car); err != nil {
+		handleError(c, err)
 		return
 	}
 
@@ -33,13 +33,13 @@ func (h CarController) UpdateCar(c *gin.Context) {
 	car := models.Car{}
 
 	if err := c.BindJSON(&car); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		handleError(c, err)
 		return
 	}
 	
-	updatedCar, resp := handlers.UpdateCar(id, &car)
-	if resp.Error != nil {
-		c.AbortWithError(resp.StatusCode, resp.Error)
+	updatedCar, err := handlers.UpdateCar(id, &car)
+	if err != nil {
+		handleError(c, err)
 		return
 	}
 
@@ -48,8 +48,8 @@ func (h CarController) UpdateCar(c *gin.Context) {
 
 func (h CarController) DeleteCar(c *gin.Context) {
 	id := c.Param("id")
-	if resp := handlers.DeleteCar(id); resp.Error != nil {
-		c.AbortWithError(resp.StatusCode, resp.Error)
+	if err := handlers.DeleteCar(id); err != nil {
+		handleError(c, err)
 		return
 	}
 
@@ -59,9 +59,9 @@ func (h CarController) DeleteCar(c *gin.Context) {
 func (h CarController) GetCarById(c *gin.Context) {
 	id := c.Param("id")
 
-	car, resp := handlers.GetCarById(id)
-	if resp.Error != nil {
-		c.AbortWithError(resp.StatusCode, resp.Error)
+	car, err := handlers.GetCarById(id)
+	if err != nil {
+		handleError(c, err)
 		return
 	}
 
@@ -69,11 +69,19 @@ func (h CarController) GetCarById(c *gin.Context) {
 }
 
 func (h CarController) GetAllCars(c *gin.Context) {
-	cars, resp := handlers.GetAllCars()
-	if resp.Error != nil {
-		c.AbortWithError(resp.StatusCode, resp.Error)
+	cars, err := handlers.GetAllCars()
+	if err != nil {
+		handleError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, &cars)
+}
+
+func handleError(c *gin.Context, err error) {
+	if errResponse, ok  := err.(*models.ErrorResponse); ok {		
+		c.AbortWithError(errResponse.StatusCode, err)
+	} else {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/gerardva/go-api/models"
 )
 
-func CreateCar(input *models.Car) (err models.ErrorResponse) {
+func CreateCar(input *models.Car) (err error) {
 	db := database.GetDatabase()
 
 	if result := db.Create(&input); result.Error != nil {
@@ -18,7 +18,7 @@ func CreateCar(input *models.Car) (err models.ErrorResponse) {
 	return
 }
 
-func UpdateCar(id string, input *models.Car) (dbCar models.Car, err models.ErrorResponse) {
+func UpdateCar(id string, input *models.Car) (dbCar models.Car, err error) {
 
 	if result := database.GetDatabase().First(&dbCar, id); result.Error != nil {
 		err = models.NewErrorResponse(http.StatusNotFound, result.Error)
@@ -34,7 +34,7 @@ func UpdateCar(id string, input *models.Car) (dbCar models.Car, err models.Error
 	return
 }
 
-func DeleteCar(id string) (err models.ErrorResponse) {
+func DeleteCar(id string) (err error) {
 	var car models.Car
 	if result := database.GetDatabase().First(&car, id); result.Error != nil {
 		err = models.NewErrorResponse(http.StatusNotFound, result.Error)
@@ -45,7 +45,7 @@ func DeleteCar(id string) (err models.ErrorResponse) {
 	return
 }
 
-func GetCarById(id string) (car models.Car, err models.ErrorResponse) {
+func GetCarById(id string) (car models.Car, err error) {
 	if result := database.GetDatabase().First(&car, id); result.Error != nil {
 		err = models.NewErrorResponse(http.StatusNotFound, result.Error)
 		return
@@ -54,7 +54,7 @@ func GetCarById(id string) (car models.Car, err models.ErrorResponse) {
 	return
 }
 
-func GetAllCars() (cars []models.Car, err models.ErrorResponse) {
+func GetAllCars() (cars []models.Car, err error) {
 	if result := database.GetDatabase().Find(&cars); result.Error != nil {
 		err = models.NewErrorResponse(http.StatusInternalServerError, result.Error)
 		return

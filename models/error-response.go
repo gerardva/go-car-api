@@ -2,12 +2,16 @@ package models
 
 type ErrorResponse struct {
 	StatusCode   int
-	Error  error
+	Err  error
 }
 
-func NewErrorResponse(statusCode int, err error) ErrorResponse {
-	return ErrorResponse {
+func (r *ErrorResponse) Error() string {
+	return r.Err.Error()
+}
+
+func NewErrorResponse(statusCode int, err error) *ErrorResponse {
+	return &ErrorResponse {
 		StatusCode: statusCode,
-		Error: err,
+		Err: err,
 	}
 }
