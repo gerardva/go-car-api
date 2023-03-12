@@ -1,64 +1,55 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/gerardva/go-api/domain"
+	"github.com/gerardva/go-api/domain/car"
 	"net/http"
-
-	"github.com/gerardva/go-api/database"
-	"github.com/gerardva/go-api/models"
 )
 
-func CreateCar(input *models.Car) (err error) {
-	db := database.GetDatabase()
-
-	if result := db.Create(&input); result.Error != nil {
-		err = models.NewErrorResponse(http.StatusInternalServerError, result.Error)
-		return
-	}
-
-	return
+type CarHandler struct {
+	repository car.Repository
 }
 
-func UpdateCar(id string, input *models.Car) (dbCar models.Car, err error) {
-
-	if result := database.GetDatabase().First(&dbCar, id); result.Error != nil {
-		err = models.NewErrorResponse(http.StatusNotFound, result.Error)
-		return
-	}
-
-	dbCar.Make = input.Make
-	dbCar.Model = input.Model
-	dbCar.Price = input.Price
-
-	database.GetDatabase().Save(&dbCar)
-
-	return
+func NewCarHandler(repo car.Repository) CarHandler {
+	return CarHandler{repo}
 }
 
-func DeleteCar(id string) (err error) {
-	var car models.Car
-	if result := database.GetDatabase().First(&car, id); result.Error != nil {
-		err = models.NewErrorResponse(http.StatusNotFound, result.Error)
+func (h CarHandler) CreateCar(input *car.Car) (err error) {
+	if err = validateCarInput(input); err != nil {
 		return
 	}
 
-	database.GetDatabase().Delete(&car)
-	return
+	return h.repository.Create(input)
 }
 
-func GetCarById(id string) (car models.Car, err error) {
-	if result := database.GetDatabase().First(&car, id); result.Error != nil {
-		err = models.NewErrorResponse(http.StatusNotFound, result.Error)
+func (h CarHandler) UpdateCar(id string, input *car.Car) (dbCar car.Car, err error) {
+	if err = validateCarInput(input); err != nil {
 		return
 	}
 
-	return
+	return h.repository.Update(id, input)
 }
 
-func GetAllCars() (cars []models.Car, err error) {
-	if result := database.GetDatabase().Find(&cars); result.Error != nil {
-		err = models.NewErrorResponse(http.StatusInternalServerError, result.Error)
-		return
+func (h CarHandler) DeleteCar(id string) (err error) {
+	// Validate, check permissions, business logic etc.
+	return h.repository.Delete(id)
+}
+
+func (h CarHandler) GetCarById(id string) (car car.Car, err error) {
+	// Validate, check permissions, business logic etc.
+	return h.repository.GetById(id)
+}
+
+func (h CarHandler) GetAllCars() (cars []car.Car, err error) {
+	// Validate, check permissions, business logic etc.
+	return h.repository.GetAll()
+}
+
+func validateCarInput(car *car.Car) error {
+	if car.Year < 1900 {
+		return domain.NewErrorResponse(http.StatusBadRequest, errors.New("invalid year"))
 	}
 
-	return
+	return nil
 }

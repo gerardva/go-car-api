@@ -2,12 +2,12 @@ package database
 
 import (
 	"fmt"
+	"github.com/gerardva/go-api/domain/car"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/gerardva/go-api/config"
-	"github.com/gerardva/go-api/models"
 )
 
 var db *gorm.DB
@@ -28,13 +28,13 @@ func connect(config *config.Config) {
 
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-        panic(err)
-    } else {
+		panic(err)
+	} else {
 		fmt.Printf("Connected Database with host %s", config.DBHost)
-    }
+	}
 }
 
 func migrate() {
-	db.AutoMigrate(&models.Car{})
+	db.AutoMigrate(&car.Car{})
 	fmt.Println("Migration complete")
 }

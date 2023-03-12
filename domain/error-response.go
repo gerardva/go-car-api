@@ -1,8 +1,8 @@
-package models
+package domain
 
 type ErrorResponse struct {
-	StatusCode   int
-	Err  error
+	StatusCode int
+	Err        error
 }
 
 func (r *ErrorResponse) Error() string {
@@ -10,8 +10,8 @@ func (r *ErrorResponse) Error() string {
 }
 
 func NewErrorResponse(statusCode int, err error) *ErrorResponse {
-	return &ErrorResponse {
+	return &ErrorResponse{
 		StatusCode: statusCode,
-		Err: err,
+		Err:        err,
 	}
 }
